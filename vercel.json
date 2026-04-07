@@ -8,7 +8,10 @@
     {
       "src": "my-invoice-front/my-invoice-front/package.json",
       "use": "@vercel/static-build",
-      "config": { "distDir": "dist" }
+      "config": {
+        "buildCommand": "npm run build",
+        "distDir": "dist"
+      }
     }
   ],
   "routes": [
@@ -22,7 +25,7 @@
     },
     {
       "src": "/(.*)",
-      "dest": "my-invoice-front/my-invoice-front/$1"
+      "dest": "my-invoice-front/my-invoice-front/dist/$1"
     }
   ]
 }
