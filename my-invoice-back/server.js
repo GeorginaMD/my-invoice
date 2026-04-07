@@ -2,14 +2,17 @@ import express from "express";
 import cors from "cors";
 import multer from "multer";
 import dotenv from "dotenv";
-import { PDFParse } from "pdf-parse";
+import pdf from "@cedrugs/pdf-parse";
 import path from "path";
+import { fileURLToPath } from "url";
 import fs from "fs";
-import { readFileSync } from "fs";
+import OpenAI from "openai";
 
 dotenv.config();
 
-import OpenAI from "openai";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 const app = express();
@@ -78,19 +81,33 @@ CRITICAL LANGUAGE INSTRUCTION:
 - Write all anomaly descriptions in that same language
 - Always write detected_language in English`;
 
+function minimizeInvoiceData(invoiceTest) {
+  return invoiceTest
+    .replace(
+      /[A-Z]{2}\d{2}[A-Z0-9]{4}\d{7}([A-Z0-9]?){0,16}/g,
+      "[IBAN REDACTED]",
+    )
+    .replace(/\b\d{8,18}\b/g, "[ACCOUNT REDACTED]")
+    .replace(/[\w.-]+@[\w.-]+\.\w{2,}/g, "[EMAIL REDACTED]")
+    .replace(/(\+?\d[\s.-]?){7,14}\d/g, "[PHONE REDACTED]");
+}
+
 // Helper function to call OpenAI API
 async function analyzeWithOpenAI(invoiceText) {
+  const cleanedText = minimizeInvoiceData(invoiceText);
+
   const response = await openai.chat.completions.create({
     model: "gpt-4o",
     temperature: 0.1,
-    max_tokens: 1500,
+    max_tokens: 1000,
     messages: [
       { role: "system", content: SYSTEM_PROMPT },
       {
         role: "user",
-        content: `Please analyze this invoice and extract all required information:\n\n${invoiceText}`,
+        content: `Please analyze this invoice and extract all required information:\n\n${cleanedText}`,
       },
     ],
+    response_format: { type: "json_object" },
   });
   const content = response.choices[0].message.content;
 
@@ -152,7 +169,7 @@ app.post("/analyze/sample/:sampleName", async (req, res) => {
     const allowedSamples = [
       "sample-invoice-nl",
       "sample-invoice-es",
-      /* "sample-invoice-fr", */
+      "sample-invoice-fr",
     ];
 
     if (!allowedSamples.includes(sampleName)) {
@@ -164,12 +181,12 @@ app.post("/analyze/sample/:sampleName", async (req, res) => {
       __dirname,
       "..",
       "my-invoice-front",
+      "my-invoice-front",
       "public",
       `${sampleName}.pdf`,
     );
     const pdfBuffer = fs.readFileSync(pdfPath);
-    const parser = new PDFParse();
-    const pdfData = await parser.parseBuffer(pdfBuffer);
+    const pdfData = await pdf(pdfBuffer);
     const invoiceText = pdfData.text;
 
     const result = await analyzeWithOpenAI(invoiceText);
@@ -185,6 +202,8 @@ app.get("/server-check", (req, res) => {
   res.json({ status: "ok", message: "Invoice Intelligence API running" });
 });
 
-app.listen(PORT, () => {
+/* app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
-});
+}); */
+
+export default app;
