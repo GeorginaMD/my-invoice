@@ -23,7 +23,7 @@ const handleAnalyzeText = async () => {
   setResult(null);
 
   try {
-    const response = await fetch('http://localhost:3000/analyze/text', {
+    const response = await fetch(`${API_URL}/analyze/text`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ invoiceText: inputText }),

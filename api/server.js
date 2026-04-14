@@ -177,14 +177,7 @@ app.post("/analyze/sample/:sampleName", async (req, res) => {
     }
 
     // Read the PDF from the frontend public folder
-    const pdfPath = path.join(
-      __dirname,
-      "..",
-      "my-invoice-front",
-      "my-invoice-front",
-      "public",
-      `${sampleName}.pdf`,
-    );
+    const pdfPath = path.join(__dirname, "samples", `${sampleName}.pdf`);
     const pdfBuffer = fs.readFileSync(pdfPath);
     const pdfData = await pdf(pdfBuffer);
     const invoiceText = pdfData.text;

@@ -1,31 +1,8 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "my-invoice-back/server.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "my-invoice-front/my-invoice-front/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "buildCommand": "npm run build",
-        "distDir": "dist"
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/analyze/(.*)",
-      "dest": "my-invoice-back/server.js"
-    },
-    {
-      "src": "/server-check",
-      "dest": "my-invoice-back/server.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "my-invoice-front/my-invoice-front/dist/$1"
-    }
+  "buildCommand": "cd my-invoice-front/my-invoice-front && npm install && npm run build",
+  "outputDirectory": "my-invoice-front/my-invoice-front/dist",
+  "rewrites": [
+    { "source": "/analyze/:path*", "destination": "/api/server" },
+    { "source": "/server-check", "destination": "/api/server" }
   ]
 }
