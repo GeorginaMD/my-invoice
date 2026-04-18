@@ -77,8 +77,8 @@ ANOMALY DETECTION - flag any of the following:
 CRITICAL LANGUAGE INSTRUCTION:
 
 - Detect the language of the invoice
-- Write the summary field in that same language
-- Write all anomaly descriptions in that same language
+- Always write the summary field in English
+- Always write all anomaly descriptions in English
 - Always write detected_language in English`;
 
 function minimizeInvoiceData(invoiceTest) {
@@ -176,7 +176,7 @@ app.post("/analyze/sample/:sampleName", async (req, res) => {
       return res.status(400).json({ error: "Invalid sample name" });
     }
 
-    // Read the PDF from the frontend public folder
+    // Read the PDF from the samples folder
     const pdfPath = path.join(__dirname, "samples", `${sampleName}.pdf`);
     const pdfBuffer = fs.readFileSync(pdfPath);
     const pdfData = await pdf(pdfBuffer);
@@ -194,9 +194,5 @@ app.post("/analyze/sample/:sampleName", async (req, res) => {
 app.get("/server-check", (req, res) => {
   res.json({ status: "ok", message: "Invoice Intelligence API running" });
 });
-
-/* app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-}); */
 
 export default app;
