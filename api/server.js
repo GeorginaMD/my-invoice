@@ -81,15 +81,14 @@ CRITICAL LANGUAGE INSTRUCTION:
 - Always write all anomaly descriptions in English
 - Always write detected_language in English`;
 
-function minimizeInvoiceData(invoiceTest) {
-  return invoiceTest
+function minimizeInvoiceData(invoiceText) {
+  return invoiceText
     .replace(
       /[A-Z]{2}\d{2}[A-Z0-9]{4}\d{7}([A-Z0-9]?){0,16}/g,
       "[IBAN REDACTED]",
     )
     .replace(/\b\d{8,18}\b/g, "[ACCOUNT REDACTED]")
-    .replace(/[\w.-]+@[\w.-]+\.\w{2,}/g, "[EMAIL REDACTED]")
-    .replace(/(\+?\d[\s.-]?){7,14}\d/g, "[PHONE REDACTED]");
+    .replace(/[\w.-]+@[\w.-]+\.\w{2,}/g, "[EMAIL REDACTED]");
 }
 
 // Helper function to call OpenAI API
